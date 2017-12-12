@@ -8,28 +8,23 @@
 
 (defn get-winner []
   (reduce #(if (not= %1 nil) %1
-             (if (= (nth @squares (nth %2 0))
-                    (nth @squares (nth %2 1))
-                    (nth @squares (nth %2 2)))
-               (nth @squares (nth %2 0))))
+             (let [[pos1 pos2 pos3] %2]
+               (if (= (nth @squares pos1)
+                      (nth @squares pos2)
+                      (nth @squares pos3))
+                 (nth @squares pos1))))
           nil
-          [[0 1 2]
-           [3 4 5]
-           [6 7 8]
-           [0 3 6]
-           [1 4 7]
-           [2 5 8]
-           [0 4 8]
-           [2 4 6]]))
+          [[0 1 2][3 4 5][6 7 8][0 3 6]
+           [1 4 7][2 5 8][0 4 8][2 4 6]]))
 
 
 (defn square [value func]
   [:button.square {:on-click func} value])
 
 (defn handle-click [pos]
-  (if (= (get-winner) nil)
-    (do
-      (swap! squares assoc pos (get-move))
+  (if (and (= (get-winner) nil)
+           (= (nth @squares pos) nil))
+    (do (swap! squares assoc pos (get-move))
       (swap! x-is-next not))))
 
 (defn render-square [pos]
@@ -42,21 +37,20 @@
       (str "Winner: " winner))))
 
 (defn board []
-  (let [status (get-status)]
-    [:div
-     [:div.status status]
-     [:div.board-row
-      [render-square 0]
-      [render-square 1]
-      [render-square 2]]
-     [:div.board-row
-      [render-square 3]
-      [render-square 4]
-      [render-square 5]]
-     [:div {:class "board-row"}
-      [render-square 6]
-      [render-square 7]
-      [render-square 8]]]))
+  [:div
+   [:div.status (get-status)]
+   [:div.board-row
+    [render-square 0]
+    [render-square 1]
+    [render-square 2]]
+   [:div.board-row
+    [render-square 3]
+    [render-square 4]
+    [render-square 5]]
+   [:div {:class "board-row"}
+    [render-square 6]
+    [render-square 7]
+    [render-square 8]]])
 
 (defn game []
   [:div.game
